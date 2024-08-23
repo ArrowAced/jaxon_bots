@@ -1,13 +1,13 @@
-const WebSocket = require('ws');
-const fetch = require('node-fetch');
-const EventEmitter = require('events');
+import { WebSocket as Watersports } from "ws";
+import fetch from "node-fetch";
+import { EventEmitter } from "events";
 
-class Bot extends EventEmitter {
+export class Bot extends EventEmitter {
     constructor(username, password) {
         super()
         this.username = username;
         this.password = password;
-        this.ws = new WebSocket('wss://server.meower.org');
+        this.ws = new Watersports('wss://server.meower.org');
         this.in = false;
         this.return = "";
         this.ulist = [];
@@ -155,4 +155,4 @@ class Bot extends EventEmitter {
     }
 }
 
-exports.Bot = Bot
+

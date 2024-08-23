@@ -2,10 +2,9 @@ import { join, dirname, parse } from 'path';
 import { fileURLToPath } from 'url';
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
-import pkg from './wrapper.cjs';
+import { Bot } from './wrapper.mjs';
 import { config } from 'dotenv';
 import * as fs from 'node:fs';
-const { Bot } = pkg;
 
 config();
 console.log(process.env.PASS)
@@ -18,7 +17,7 @@ let trade = {
 }
 const notes = 'ver0.3.1\na random amount of interest is given to all players every 5 minutes.'
 const adapter = new JSONFile(join(__dirname, 'db/db.json'));
-const db = new Low(adapter);
+const db = new Low(adapter, {});
 const shop = {
     'socks': {
         'price': 100,
