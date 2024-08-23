@@ -7,8 +7,7 @@ import { config } from 'dotenv';
 import * as fs from 'node:fs';
 
 config();
-console.log(process.env.PASS)
-const bot = new Bot('fem', process.env.PASS);
+const bot = new Bot(process.env.USER, process.env.PASS);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 let trade = {
