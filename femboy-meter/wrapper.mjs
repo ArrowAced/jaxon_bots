@@ -11,13 +11,15 @@ export class Bot extends EventEmitter {
         this.in = false;
         this.return = "";
         this.ulist = [];
+        this.token = "";
     }
     send(data) {
         if (this.ws.readyState != 1) return;
         this.ws.send(data);
     }
-    login() {
-        this.ws.on('open', () => {
+    async login() {
+        this.ws.on('open', async () => {
+            /*
             this.ws.send(JSON.stringify({
                 'cmd': 'direct',
                 'val': {
@@ -44,13 +46,25 @@ export class Bot extends EventEmitter {
                     'val': 'scratch-beta-5-r7',
                 },
             }))
+            */
+            const authReq = await fetch("https://api.meower.org/auth/login", {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    password: this.password
+                })
+            })
+            const authJSON = await authReq.json()
             this.ws.send(JSON.stringify({
                 'cmd': 'direct',
                 'val': {
                     'cmd': 'authpswd',
                     'val': {
                         'username': this.username,
-                        'pswd': this.password,
+                        'pswd': authJSON.token,
                     },
                 },
             }))
@@ -69,6 +83,12 @@ export class Bot extends EventEmitter {
             let list = JSON.parse(data)
             if (list.cmd == 'ulist') {
                 this.ulist = list.val.split(';')
+            }
+        })
+        this.ws.on('message', (data) => {
+            let auth = JSON.parse(data)
+            if (auth.cmd == 'direct' && auth.val.mode == 'auth') {
+                this.token = auth.val.payload.token
             }
         })
         this.ws.on('message', (data) => {
@@ -98,14 +118,33 @@ export class Bot extends EventEmitter {
             this.emit('error', err)
         })
     }
-    post(message, origin) {
+    async post(message, origin) {
         if (this.ws.readyState != 1) return;
         if (!message) return;
         if (!origin) origin = "home";
         if (origin == "home") {
-            this.ws.send(JSON.stringify({ "cmd": "direct", "val": { "cmd": "post_home", "val": message } }))
+            fetch("https://api.meower.org/home", {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json",
+                    token: this.token
+                },
+                body: JSON.stringify({
+                    content: message
+                })
+            })
+
         } else {
-            this.ws.send(JSON.stringify({ "cmd": "direct", "val": { "cmd": "post_chat", "val": { "p": message, "chatid": origin } } }))
+            fetch("https://api.meower.org/posts/" + origin, {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json",
+                    token: this.token
+                },
+                body: JSON.stringify({
+                    content: message
+                })
+            })
         }
     }
     signout() {

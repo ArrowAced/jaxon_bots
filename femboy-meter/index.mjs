@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import * as fs from 'node:fs';
 
 config();
-const bot = new Bot(process.env.USER, process.env.PASS);
+const bot = new Bot(process.env.MEOWERUSERNAME, process.env.MEOWERPASSWORD);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 let trade = {
@@ -67,8 +67,8 @@ bot.on('error', (err) => {
 })
 
 bot.on('post', async (message) => {
-    console.log(message);
-    let parsed = bot.parse(message, 'fem.')
+    //console.log(message);
+    let parsed = bot.parse(message, `@${bot.username} `)
     if (parsed) {
         if (parsed.command == 'meter') {
             if (db.data.hasOwnProperty(message.author)) {
