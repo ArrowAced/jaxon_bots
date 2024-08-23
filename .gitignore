@@ -1,3 +1,4 @@
 node_modules/
 femboy-meter/db/
 *.env
+femboy-meter/.env
