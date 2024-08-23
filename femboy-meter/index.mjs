@@ -195,7 +195,7 @@ bot.on('post', async (message) => {
         } else if (parsed.command == 'update') {
             bot.post(notes, message.origin)
         } else if (parsed.command == 'help') {
-            bot.post('https://jaxonbots.jaxonbaxon.repl.co/femboy.html', message.origin)
+            bot.post('https://twink.pages.dev/femboy\n-# remember to avoid using bots in home! create a gc instead :3', message.origin)
         } else if (parsed.command == 'notify' && db.data.hasOwnProperty(message.author)) {
             db.data[message.author].notify = !db.data[message.author].notify
             bot.post(`Set notifications to ${db.data[message.author].notify}`, message.origin)
