@@ -14,6 +14,7 @@ let trade = {
     "sell": 15,
     "get": 20
 }
+const stocksgc = "8d694240-8b46-400d-98da-78ef93a550f1"
 const notes = 'ver0.3.1\na random amount of interest is given to all players every 5 minutes.'
 const adapter = new JSONFile(join(__dirname, 'db/db.json'));
 const db = new Low(adapter, {});
@@ -216,6 +217,7 @@ setInterval(async () => {
 }, 300000)
 setInterval(async () => { 
     trade = { sell: Math.floor(Math.random() * 21) + 1, get: Math.floor(Math.random() * 21) + 6 }
+    /*
     if (trade.sell < trade.get) {
         let num = Math.floor(Math.random() * 51)
         Object.keys(db.data).forEach(user => {
@@ -224,6 +226,9 @@ setInterval(async () => {
             }
         })
     }
+    */
+   bot.post(`${trade.sell};${trade.get}`, stocksgc)
 }, 30000)
+
 
 bot.login()

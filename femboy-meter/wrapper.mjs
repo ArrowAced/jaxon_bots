@@ -19,34 +19,6 @@ export class Bot extends EventEmitter {
     }
     async login() {
         this.ws.on('open', async () => {
-            /*
-            this.ws.send(JSON.stringify({
-                'cmd': 'direct',
-                'val': {
-                    'cmd': 'type',
-                    'val': 'js',
-                },
-            }))
-            const ip = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255)) + "." + (Math.floor(Math.random() * 255)) + "." + (Math.floor(Math.random() * 255));
-            this.ws.send(JSON.stringify({
-                'cmd': 'direct',
-                'val': {
-                    'cmd': 'ip',
-                    'val': ip,
-                },
-            }))
-            this.ws.send(JSON.stringify({
-                'cmd': 'direct',
-                'val': 'meower',
-            }))
-            this.ws.send(JSON.stringify({
-                'cmd': 'direct',
-                'val': {
-                    'cmd': 'version_chk',
-                    'val': 'scratch-beta-5-r7',
-                },
-            }))
-            */
             const authReq = await fetch("https://api.meower.org/auth/login", {
                 method: "POST", 
                 headers: {
