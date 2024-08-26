@@ -5,6 +5,7 @@ import { JSONFile } from 'lowdb/node';
 import { Bot } from './wrapper.mjs';
 import { config } from 'dotenv';
 import * as fs from 'node:fs';
+import { scan } from './commands/commandManager.js'
 
 config();
 const bot = new Bot(process.env.MEOWERUSERNAME, process.env.MEOWERPASSWORD);
@@ -56,8 +57,10 @@ const shop = {
     }
 }
 
+const commands = await scan()
+
 await db.read();
-if (!db.data) db.data = { };
+if (!db.data) db.data = {};
 
 bot.on('ready', () => {
     console.log('Bot is ready!');
@@ -71,135 +74,8 @@ bot.on('post', async (message) => {
     //console.log(message);
     let parsed = bot.parse(message, `@${bot.username} `)
     if (parsed) {
-        if (parsed.command == 'meter') {
-            if (db.data.hasOwnProperty(message.author)) {
-                db.data[message.author].meter += Math.floor(Math.random() * 21) - 10;
-                if (db.data[message.author].meter > 100) db.data[message.author].meter = 100;
-                if (db.data[message.author].meter < 0) db.data[message.author].meter = 0;
-                bot.post(`You are ${db.data[message.author].meter}% a femboy!`, message.origin)
-            } else {
-                db.data[message.author] = { meter: Math.floor(Math.random() * 101), fembucks: 0, items: [], equipped: [], lasttrade: 0, notify: false, luckynum: Math.floor(Math.random() * 51)}
-                bot.post(`You are ${db.data[message.author].meter}% a femboy!`, message.origin)
-            }
-        } else if (parsed.command == 'find') {
-            if (parsed.args[0]) {
-                let user = parsed.args[0];
-                if (db.data.hasOwnProperty(user)) {
-                    bot.post(`${user} is ${db.data[user].meter}% a femboy!`, message.origin)
-                } else {
-                    bot.post(`${user} is not in the database!`, message.origin)
-                }
-            }
-        } else if (parsed.command == 'info') {
-            bot.post(`Hosting ${Object.keys(db.data).length} users with a custom wrapper. // made by jaxonbaxon#7560`, message.origin)
-        } else if (parsed.command == 'shop') {
-            let assembly = []
-            Object.keys(shop).forEach(item => {
-                assembly.push(`${item} - ${shop[item].price} fembucks - ${shop[item].description}`)
-            })
-            if (parsed.args.length > 0) {
-                assembly.forEach(item => {
-                    if (item.startsWith(parsed.args[0])) {
-                        bot.post(item, message.origin)
-                    }
-                })
-            } else {
-                bot.post(assembly.join('\n'), message.origin)
-            }
-        } else if (parsed.command == 'trade') {
-            if (!db.data.hasOwnProperty(message.author)) return;
-            if (db.data[message.author].lasttrade == 0 || (Math.floor(Date.now() / 1000) - db.data[message.author].lasttrade) >= 60) {
-                if (db.data[message.author].meter >= 20) {
-                    db.data[message.author].meter -= trade.sell
-                    db.data[message.author].fembucks += trade.get
-                    db.data[message.author].lasttrade = message.timestamp
-                    bot.post(`Traded ${trade.sell} points off your femboy meter for ${trade.get} fembucks!`, message.origin)
-                } else {
-                    bot.post('You don\'t have enough points on your femboy meter!', message.origin)
-                }
-            } else {
-                bot.post('Wait 1 minute until trading again!', message.origin)
-            }
-        } else if (parsed.command == 'buy' && db.data.hasOwnProperty(message.author)) {
-            if (parsed.args.length > 0) {
-                if (shop.hasOwnProperty(parsed.args[0])) {
-                    if (db.data[message.author].fembucks >= shop[parsed.args[0]].price) {
-                        db.data[message.author].fembucks -= shop[parsed.args[0]].price;
-                        db.data[message.author].items.push(parsed.args[0]);
-                        bot.post(`You bought ${parsed.args[0]}!`, message.origin)
-                    } else {
-                        bot.post(`You don't have enough fembucks!`, message.origin)
-                    }
-                } else {
-                    bot.post(`That item doesn't exist!`, message.origin)
-                }
-            } else {
-                bot.post(`You didn't specify an item!`, message.origin)
-            }
-        } else if (parsed.command == 'fembucks' && db.data.hasOwnProperty(message.author)) {
-            bot.post(`You have ${db.data[message.author].fembucks} fembucks!`, message.origin)
-        } else if (parsed.command == 'items' && db.data.hasOwnProperty(message.author)) {
-            if (db.data[message.author].items.length > 0) {
-                bot.post(db.data[message.author].items.join(', '), message.origin)
-            } else {
-                bot.post(`You don't have any items!`, message.origin)
-            }
-        } else if (parsed.command == 'equip' && db.data.hasOwnProperty(message.author)) {
-            if (parsed.args[0]) {
-                if (db.data[message.author].items.includes(parsed.args[0])) {
-                    if (!db.data[message.author].equipped.includes(shop[parsed.args[0]])) {
-                        if (shop[parsed.args[0]]['delete_on_use']) {
-                            db.data[message.author].items.splice(db.data[message.author].items.indexOf(parsed.args[0]), 1)
-                        } else {
-                            db.data[message.author].equipped.push(parsed.args[0])
-                            db.data[message.author].items.splice(db.data[message.author].items.indexOf(parsed.args[0]), 1)
-                        }
-                        let use = shop[parsed.args[0]]['use-msg'][Math.floor(Math.random() * shop[parsed.args[0]]['use-msg'].length)]
-                        db.data[message.author].meter += shop[parsed.args[0]].femgain
-                        let ulist = await bot.get('ulist')
-                        use = use.replace(/#/g, ulist[Math.floor(Math.random() * ulist.length)])
-                        bot.post(use, message.origin)
-                    } else {
-                        bot.post(`You can't equip that!`, message.origin)
-                    }
-                } else {
-                    bot.post(`You don't have that item!`, message.origin)
-                }
-            }
-        } else if (parsed.command == 'unequip' && db.data.hasOwnProperty(message.author)) {
-            if (parsed.args[0]) {
-                if (db.data[message.author].equipped.includes(parsed.args[0])) {
-                    db.data[message.author].equipped.splice(db.data[message.author].equipped.indexOf(parsed.args[0]), 1)
-                    db.data[message.author].items.push(parsed.args[0])
-                    db.data[message.author].femgain -= (Math.abs(shop[parsed.args[0]]['femgain']) / 2)
-                    if (shop[parsed.args[0]].hasOwnProperty('unequip-msg')) {
-                        bot.post(shop[parsed.args[0]]['unequip-msg'][Math.floor(Math.random() * shop[parsed.args[0]]['unequip-msg'].length)], message.origin)
-                    } else {
-                        bot.post(`You unequipped ${parsed.args[0]}.`, message.origin)
-                    }
-                } else {
-                    bot.post(`You don't have that item equipped!`, message.origin)
-                }
-            }
-        } else if (parsed.command == 'equipped' && db.data.hasOwnProperty(message.author)) {
-            if (parsed.args[0]) {
-                if (db.data[message.author].equipped.includes(parsed.args[0])) {
-                    bot.post(`You have ${parsed.args[0]} equipped.`, message.origin)
-                } else {
-                    bot.post(`You do not have ${parsed.args[0]} equipped.`, message.origin)
-                }
-            } else {
-                bot.post(db.data[message.author].equipped.join(', '), message.origin)
-            }
-        } else if (parsed.command == 'stocks') {
-            bot.post(`sell price: ${trade.sell}\nreturn: ${trade.get}`, message.origin)
-        } else if (parsed.command == 'update') {
-            bot.post(notes, message.origin)
-        } else if (parsed.command == 'help') {
-            bot.post('https://twink.pages.dev/femboy\n-# remember to avoid using bots in home! create a gc instead :3', message.origin)
-        } else if (parsed.command == 'notify' && db.data.hasOwnProperty(message.author)) {
-            db.data[message.author].notify = !db.data[message.author].notify
-            bot.post(`Set notifications to ${db.data[message.author].notify}`, message.origin)
+        if (commands[parsed.command]) {
+            await commands[parsed.command]({ bot, db, parsed, message, shop, notes, trade })
         }
         await db.write()
     }
@@ -215,7 +91,7 @@ setInterval(async () => {
     })
     await db.write()
 }, 300000)
-setInterval(async () => { 
+setInterval(async () => {
     trade = { sell: Math.floor(Math.random() * 21) + 1, get: Math.floor(Math.random() * 21) + 6 }
     /*
     if (trade.sell < trade.get) {
@@ -227,7 +103,7 @@ setInterval(async () => {
         })
     }
     */
-   bot.post(`${trade.sell};${trade.get}`, stocksgc)
+    bot.post(`${trade.sell};${trade.get}`, stocksgc)
 }, 30000)
 
 
