@@ -1,4 +1,4 @@
-export default function command({bot, db, parsed, message}) {
+export default function command({bot, db, message}) {
     if (db.data.hasOwnProperty(message.author)) {
         db.data[message.author].meter += Math.floor(Math.random() * 21) - 10;
         if (db.data[message.author].meter > 100) db.data[message.author].meter = 100;

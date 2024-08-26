@@ -1,4 +1,4 @@
-export default function command({ bot, db, parsed, message, shop }) {
+export default function command({ bot, parsed, message, shop }) {
     let assembly = []
     Object.keys(shop).forEach(item => {
         assembly.push(`${item} - ${shop[item].price} fembucks - ${shop[item].description}`)
