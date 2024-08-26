@@ -75,7 +75,7 @@ bot.on('post', async (message) => {
     let parsed = bot.parse(message, `@${bot.username} `)
     if (parsed) {
         if (commands[parsed.command]) {
-            await commands[parsed.command]({ bot, db, parsed, message, shop })
+            await commands[parsed.command]({ bot, db, parsed, message, shop, notes, trade })
         }
         await db.write()
     }

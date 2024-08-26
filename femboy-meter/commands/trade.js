@@ -1,4 +1,4 @@
-export default function command({ bot, db, parsed, message }) {
+export default function command({ bot, db, parsed, message, trade }) {
     if (!db.data.hasOwnProperty(message.author)) return;
     if (db.data[message.author].lasttrade == 0 || (Math.floor(Date.now() / 1000) - db.data[message.author].lasttrade) >= 60) {
         if (db.data[message.author].meter >= 20) {
