@@ -5,7 +5,7 @@ import { JSONFile } from 'lowdb/node';
 import { Bot } from './wrapper.mjs';
 import { config } from 'dotenv';
 import * as fs from 'node:fs';
-import {scan} from './commands/commandManager.js'
+import { scan } from './commands/commandManager.js'
 
 config();
 const bot = new Bot(process.env.MEOWERUSERNAME, process.env.MEOWERPASSWORD);
@@ -60,7 +60,7 @@ const shop = {
 const commands = await scan()
 
 await db.read();
-if (!db.data) db.data = { };
+if (!db.data) db.data = {};
 
 bot.on('ready', () => {
     console.log('Bot is ready!');
@@ -75,7 +75,7 @@ bot.on('post', async (message) => {
     let parsed = bot.parse(message, `@${bot.username} `)
     if (parsed) {
         if (commands[parsed.command]) {
-            await commands[parsed.command]({bot, db, parsed, message, shop})
+            await commands[parsed.command]({ bot, db, parsed, message, shop })
         }
         await db.write()
     }
@@ -91,7 +91,7 @@ setInterval(async () => {
     })
     await db.write()
 }, 300000)
-setInterval(async () => { 
+setInterval(async () => {
     trade = { sell: Math.floor(Math.random() * 21) + 1, get: Math.floor(Math.random() * 21) + 6 }
     /*
     if (trade.sell < trade.get) {
@@ -103,7 +103,7 @@ setInterval(async () => {
         })
     }
     */
-   bot.post(`${trade.sell};${trade.get}`, stocksgc)
+    bot.post(`${trade.sell};${trade.get}`, stocksgc)
 }, 30000)
 
 
